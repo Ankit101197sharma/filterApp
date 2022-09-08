@@ -1,32 +1,31 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 
 function App() {
-  const [loading, setLoading] = useState(false);
   const [posts, setPosts] = useState([]);
   const [searchTitle, setSearchTitle] = useState("");
-  const [searchquery, setSearchquery] = useState(false)
+  const [searchquery, setSearchquery] = useState(false);
 
   useEffect(() => {
     const loadPosts = async () => {
-      setLoading(true);
       const response = await axios.get(
         "https://jsonplaceholder.typicode.com/posts"
       );
       setPosts(response.data);
-      setLoading(false);
     };
     loadPosts();
   }, []);
-   
- let res = posts.map((item) => (
-  <div className="col-md-4 m-5 justify-content-center " style={{border:"1px solid #ccc", }}>
-    <h5 key={item.id}> {item.title} </h5>
-    <p> {item.body} </p>
-  </div>
-))
+
+  const clickHandler = () => {
+    setSearchquery(true);
+  };
+
+  const changeHandler = (e) => {
+    setSearchquery(false);
+    setSearchTitle(e.target.value);
+  };
 
   return (
     <div className="App">
@@ -34,27 +33,50 @@ function App() {
         <div>
           <h2>Search Filter</h2>
           <div className="">
-          <input
-            style={{ width: "30%", height: "25px" }}
-            type="text"
-            value={searchTitle}
-            onChange={(e) => setSearchTitle(e.target.value)}
-            placeholder="search..."
-          />
-          <button className="btn btn-primary m-2"  type="search"  onClick={()=>setSearchquery(true)} > Search</button>
-
+            <input
+              style={{ width: "30%", height: "25px" }}
+              type="text"
+              onChange={changeHandler}
+              placeholder="search..."
+            />
+            <button
+              className="btn btn-primary m-2"
+              type="search"
+              onClick={clickHandler}
+            >
+              Search
+            </button>
           </div>
-          
-          {loading ? (
-            <h4>Loading ...</h4>
+          {searchquery ? (
+            <>
+              <div>Searched data</div>
+              {posts
+                .filter((value) =>
+                  value.title.toLowerCase().includes(searchTitle.toLowerCase())
+                )
+                .map((item) => (
+                  <div
+                    className="col-md-4 m-5 justify-content-center "
+                    style={{ border: "1px solid #ccc" }}
+                  >
+                    <h5 key={item.id}> {item.title} </h5>
+                    <p> {item.body} </p>
+                  </div>
+                ))}
+            </>
           ) : (
-            (searchquery) ?  posts
-            .filter((value) => (
-                value.title.toLowerCase().includes(searchTitle.toLowerCase())
-              )
-            ).res : res
-           
-              
+            <>
+              <div>Initial Data</div>
+              {posts.map((item) => (
+                <div
+                  className="col-md-4 m-5 justify-content-center "
+                  style={{ border: "1px solid #ccc" }}
+                >
+                  <h5 key={item.id}> {item.title} </h5>
+                  <p> {item.body} </p>
+                </div>
+              ))}
+            </>
           )}
         </div>
       </div>
